@@ -1314,6 +1314,15 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.getElementById('overlay').classList.contains('open')&&document.activeElement.tagName!=='TEXTAREA') saveNewEvt();
 });
 
+// Seed default account (runs once on any new device)
+(function(){
+  const users = loadUsers();
+  if (!users.find(u => u.username === '薛云泽')) {
+    users.push({ id: 'u_xueyunze', username: '薛云泽', password: 'h10y684', createdAt: '2026-06-02T00:00:00.000Z' });
+    saveUsers(users);
+  }
+})();
+
 // Auto-resume session
 const savedSession = getSession();
 if (savedSession && savedSession.id && savedSession.username) {
