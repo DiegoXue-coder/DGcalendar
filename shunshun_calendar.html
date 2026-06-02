@@ -307,11 +307,10 @@ body{
   .wl-en{font-size:11px}
   .wl-et{font-size:10px;margin-bottom:2px}
 
-  /* 日程面板：从底部滑出，内容可滚动 */
+  /* 日程面板：从底部滑出，内容可滚动，禁止拖拽 */
   #overlay{padding:0;align-items:flex-end}
   .panel{
     border-radius:20px 20px 0 0;
-    /* 固定高度 75% 视口，确保不超屏 */
     height: 75vh;
     max-height: 75vh;
     min-height: 0;
@@ -319,10 +318,18 @@ body{
     max-width:100%;
     padding:16px 18px;
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
-    /* iOS 滚动修复 */
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    /* 禁止拖拽/选中 */
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  /* 输入框内允许选中文字 */
+  .panel input, .panel select, .panel textarea {
+    user-select: text;
+    -webkit-user-select: text;
   }
   .panel-date{font-size:16px}
 
@@ -724,6 +731,7 @@ document.addEventListener('click', closeUserMenu);
 
 // ── USER MANAGER ──
 function openUserManager() {
+  document.body.style.overflow='hidden';
   closeUserMenu();
   document.getElementById('pwOld').value = '';
   document.getElementById('pwNew').value = '';
@@ -735,6 +743,7 @@ function openUserManager() {
 }
 function closeUserManager() {
   document.getElementById('umOverlay').classList.remove('open');
+  document.body.style.overflow='';
 }
 function bgClickUM(e) { if (e.target === document.getElementById('umOverlay')) closeUserManager(); }
 
@@ -1247,6 +1256,7 @@ function renderWeekList(){
 // ── PANEL ────────────────────────────────────────────
 let openKey=null;
 function openPanel(d){
+  document.body.style.overflow='hidden';
   openKey=dk(d);
   document.getElementById('panelDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 ${DOW[d.getDay()]}`;
   const wn=weekNum(d);
@@ -1256,7 +1266,7 @@ function openPanel(d){
   document.getElementById('newName').value='';document.getElementById('newTime').value='';document.getElementById('newNote').value='';
   document.getElementById('overlay').classList.add('open');
 }
-function closePanel(){document.getElementById('overlay').classList.remove('open');openKey=null;}
+function closePanel(){document.getElementById('overlay').classList.remove('open');openKey=null;document.body.style.overflow='';}
 function bgClick(e){if(e.target===document.getElementById('overlay'))closePanel();}
 
 function renderEvtList(d){
@@ -1341,8 +1351,9 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'
 function openCatManager(){
   renderCatList();populateCatSelects();
   document.getElementById('catOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
 }
-function closeCatManager(){document.getElementById('catOverlay').classList.remove('open');}
+function closeCatManager(){document.getElementById('catOverlay').classList.remove('open');document.body.style.overflow='';}
 function bgClick2(e){if(e.target===document.getElementById('catOverlay'))closeCatManager();}
 
 function renderCatList(){
