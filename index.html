@@ -228,6 +228,44 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f5f3ef;color:#1c1c1e;min-
 .cat-name-input:hover{background:#f0f0f5}
 input[type=color]{width:32px;height:28px;padding:2px;border:0.5px solid #d1d1d6;border-radius:6px;cursor:pointer;background:#fff}
 
+/* ── DATE PICKER POPUP ── */
+.date-picker-popup{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:0.5px solid #e5e5ea;border-radius:14px;padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);z-index:600;min-width:220px}
+.date-picker-popup.open{display:block}
+.dp-title{font-size:11px;font-weight:500;color:#8e8e93;margin-bottom:10px;letter-spacing:0.04em;text-transform:uppercase}
+.dp-input{width:100%;padding:9px 10px;border:0.5px solid #d1d1d6;border-radius:9px;font-family:'Noto Sans SC',sans-serif;font-size:14px;color:#1c1c1e;outline:none;margin-bottom:8px}
+.dp-btns{display:flex;gap:6px}
+.dp-today{flex:1;padding:8px;background:#f2f2f7;border:none;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;color:#1c1c1e}
+.dp-today:hover{background:#e5e5ea}
+.dp-go{flex:1;padding:8px;background:#1c1c1e;border:none;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;color:#fff}
+.dp-go:hover{background:#3a3a3c}
+.nav-btn-wrap{position:relative}
+
+/* ── TIME WHEEL PICKER ── */
+.tw-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:700;align-items:flex-end;justify-content:center}
+.tw-overlay.open{display:flex}
+.tw-panel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:0 0 env(safe-area-inset-bottom,16px)}
+.tw-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0}
+.tw-title{font-size:15px;font-weight:600}
+.tw-allday-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #d1d1d6;background:#fff;font-family:'Noto Sans SC',sans-serif;font-size:13px;cursor:pointer;color:#1c1c1e;transition:all 0.15s}
+.tw-allday-btn.active{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+.tw-body{padding:12px 20px}
+.tw-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tw-row-label{font-size:12px;color:#8e8e93;width:28px;flex-shrink:0}
+.tw-wheels{display:flex;align-items:center;gap:6px;flex:1;background:#f5f5f7;border-radius:12px;padding:0 10px;position:relative}
+/* 高亮选中行 */
+.tw-wheels::before{content:'';position:absolute;left:6px;right:6px;top:50%;transform:translateY(-50%);height:44px;background:rgba(0,0,0,0.06);border-radius:8px;pointer-events:none}
+.tw-sep{font-size:20px;font-weight:600;color:#1c1c1e;flex-shrink:0}
+.tw-wheel{flex:1;height:132px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
+.tw-wheel::-webkit-scrollbar{display:none}
+.tw-wheel-pad{height:44px} /* top/bottom padding for centering */
+.tw-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:#1c1c1e;scroll-snap-align:center;cursor:pointer;user-select:none;transition:opacity 0.1s}
+.tw-confirm{width:calc(100% - 40px);margin:4px 20px 16px;padding:14px;background:#1c1c1e;color:#fff;border:none;border-radius:12px;font-family:'Noto Sans SC',sans-serif;font-size:15px;font-weight:500;cursor:pointer}
+.tw-confirm:hover{background:#3a3a3c}
+/* 时间显示按钮（替换文字输入框） */
+.time-display-btn{width:100%;padding:10px 12px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:14px;color:#1c1c1e;background:#fff;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.time-display-btn.placeholder{color:#aaa}
+.time-display-btn::after{content:'⌚';font-size:16px;opacity:0.4}
+
 /* ── 防止横向溢出 ── */
 html, body{
   overflow-x: hidden;
@@ -474,7 +512,17 @@ body{
         </div>
       </div>
       <div class="sep"></div>
-      <button class="btn" onclick="goToday()">今天</button>
+      <div class="nav-btn-wrap">
+        <button class="btn" onclick="toggleDatePicker(event)">跳转日期</button>
+        <div class="date-picker-popup" id="datePickerPopup">
+          <div class="dp-title">选择日期跳转</div>
+          <input type="date" class="dp-input" id="dpInput">
+          <div class="dp-btns">
+            <button class="dp-today" onclick="goToday();closeDatePicker()">今天</button>
+            <button class="dp-go" onclick="jumpToDate()">跳转</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -504,6 +552,35 @@ body{
   </div>
 </div>
 
+<!-- Time wheel picker -->
+<div class="tw-overlay" id="twOverlay" onclick="bgClickTW(event)">
+  <div class="tw-panel">
+    <div class="tw-header">
+      <span class="tw-title">选择时间</span>
+      <button class="tw-allday-btn" id="twAlldayBtn" onclick="toggleTWAllday()">全天</button>
+    </div>
+    <div class="tw-body" id="twBody">
+      <div class="tw-row">
+        <span class="tw-row-label">开始</span>
+        <div class="tw-wheels">
+          <div class="tw-wheel" id="twSH"></div>
+          <span class="tw-sep">:</span>
+          <div class="tw-wheel" id="twSM"></div>
+        </div>
+      </div>
+      <div class="tw-row">
+        <span class="tw-row-label">结束</span>
+        <div class="tw-wheels">
+          <div class="tw-wheel" id="twEH"></div>
+          <span class="tw-sep">:</span>
+          <div class="tw-wheel" id="twEM"></div>
+        </div>
+      </div>
+    </div>
+    <button class="tw-confirm" onclick="confirmTimePicker()">确认</button>
+  </div>
+</div>
+
 <!-- Detail overlay -->
 <div class="overlay" id="overlay" onclick="bgClick(event)">
   <div class="panel" id="panel">
@@ -516,10 +593,9 @@ body{
       <div class="add-label">添加日程</div>
       <div class="add-form">
         <input type="text" id="newName" placeholder="日程名称">
-        <div class="add-row">
-          <input type="text" id="newTime" placeholder="时间，如 9:00-11:30">
-          <select id="newCat"></select>
-        </div>
+        <button type="button" class="time-display-btn placeholder" id="newTimeBtn" onclick="openTimePicker('new')">选择时间</button>
+        <input type="hidden" id="newTime">
+        <select id="newCat"></select>
         <input type="text" id="newNote" placeholder="备注（可选）">
         <button class="save-btn" onclick="saveNewEvt()">保存</button>
       </div>
@@ -655,6 +731,7 @@ function loginAs(user) {
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('mainApp').style.display = '';
   updateUserUI();
+  initWheels();
   renderLegend();
   goToday();
   setView('month');
@@ -1309,7 +1386,8 @@ function showEditForm(card,ev,d){
   form.innerHTML=`
     <input type="text" id="ef_name" value="${esc(ev.name)}" placeholder="名称">
     <div class="ef-row">
-      <input type="text" id="ef_time" value="${esc(ev.time||'')}" placeholder="时间">
+      <button type="button" class="time-display-btn${ev.time?'':' placeholder'}" onclick="openTimePicker('edit')" style="font-size:12px;padding:5px 8px">${ev.time||'选择时间'}</button>
+      <input type="hidden" id="ef_time" value="${esc(ev.time||'')}">
       <select id="ef_cat">${catOpts}</select>
     </div>
     <input type="text" id="ef_note" value="${esc(ev.note||'')}" placeholder="备注">
@@ -1423,6 +1501,133 @@ function addCat(){
   userCats.push({id,name,color});saveCats();
   document.getElementById('newCatName').value='';
   renderCatList();renderLegend();populateCatSelects();
+}
+
+// ── DATE PICKER ──────────────────────────────────────
+function toggleDatePicker(e){
+  e.stopPropagation();
+  const pop = document.getElementById('datePickerPopup');
+  const isOpen = pop.classList.contains('open');
+  pop.classList.toggle('open');
+  // 预填今天日期
+  if(!isOpen){
+    const t = new Date();
+    document.getElementById('dpInput').value = dk(t);
+  }
+}
+function closeDatePicker(){ document.getElementById('datePickerPopup').classList.remove('open'); }
+document.addEventListener('click', e=>{
+  const pop = document.getElementById('datePickerPopup');
+  if(pop && !pop.closest('.nav-btn-wrap').contains(e.target)) closeDatePicker();
+});
+function jumpToDate(){
+  const val = document.getElementById('dpInput').value;
+  if(!val) return;
+  const parts = val.split('-');
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  viewYear = d.getFullYear(); viewMonth = d.getMonth();
+  viewWeekStart = weekMonday(d);
+  closeDatePicker();
+  // 月视图跳到对应月，周视图跳到对应周
+  render();
+}
+
+// ── TIME WHEEL PICKER ────────────────────────────────
+let twTarget = 'new'; // 'new' or edit field id
+let twIsAllday = false;
+
+function buildWheel(el, items){
+  el.innerHTML = '';
+  const padT = document.createElement('div'); padT.className='tw-wheel-pad'; el.appendChild(padT);
+  items.forEach(v=>{
+    const item = document.createElement('div'); item.className='tw-item';
+    item.textContent = String(v).padStart(2,'0'); el.appendChild(item);
+  });
+  const padB = document.createElement('div'); padB.className='tw-wheel-pad'; el.appendChild(padB);
+}
+
+function initWheels(){
+  const hours = Array.from({length:24},(_,i)=>i);
+  const mins  = Array.from({length:12},(_,i)=>i*5);
+  buildWheel(document.getElementById('twSH'), hours);
+  buildWheel(document.getElementById('twSM'), mins);
+  buildWheel(document.getElementById('twEH'), hours);
+  buildWheel(document.getElementById('twEM'), mins);
+}
+
+function wheelGetIdx(el){ return Math.round(el.scrollTop / 44); }
+function wheelSetIdx(el, idx){ el.scrollTop = idx * 44; }
+
+function openTimePicker(target){
+  twTarget = target;
+  twIsAllday = false;
+  document.getElementById('twAlldayBtn').classList.remove('active');
+  document.getElementById('twBody').style.display = '';
+
+  // 读取当前值预填
+  const curVal = target === 'new'
+    ? document.getElementById('newTime').value
+    : (document.getElementById('ef_time') ? document.getElementById('ef_time').value : '');
+
+  if(curVal === '全天'){
+    twIsAllday = true;
+    document.getElementById('twAlldayBtn').classList.add('active');
+    document.getElementById('twBody').style.display = 'none';
+  } else {
+    const range = parseRange(curVal);
+    const sh = range ? Math.floor(range.s) : 9;
+    const sm = range ? Math.round((range.s % 1)*60/5)*5 : 0;
+    const eh = range ? Math.floor(range.e) : 10;
+    const em = range ? Math.round((range.e % 1)*60/5)*5 : 0;
+    // 使用 setTimeout 确保 DOM 渲染后再 scroll
+    setTimeout(()=>{
+      wheelSetIdx(document.getElementById('twSH'), sh);
+      wheelSetIdx(document.getElementById('twSM'), sm/5);
+      wheelSetIdx(document.getElementById('twEH'), eh);
+      wheelSetIdx(document.getElementById('twEM'), em/5);
+    }, 30);
+  }
+
+  document.getElementById('twOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function bgClickTW(e){ if(e.target === document.getElementById('twOverlay')) closeTimePicker(); }
+function closeTimePicker(){
+  document.getElementById('twOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleTWAllday(){
+  twIsAllday = !twIsAllday;
+  document.getElementById('twAlldayBtn').classList.toggle('active', twIsAllday);
+  document.getElementById('twBody').style.display = twIsAllday ? 'none' : '';
+}
+
+function confirmTimePicker(){
+  let timeStr;
+  if(twIsAllday){
+    timeStr = '全天';
+  } else {
+    const sh = wheelGetIdx(document.getElementById('twSH'));
+    const sm = wheelGetIdx(document.getElementById('twSM')) * 5;
+    const eh = wheelGetIdx(document.getElementById('twEH'));
+    const em = wheelGetIdx(document.getElementById('twEM')) * 5;
+    const fmt = (h,m) => `${h}:${String(m).padStart(2,'0')}`;
+    timeStr = `${fmt(sh,sm)}-${fmt(eh,em)}`;
+  }
+
+  if(twTarget === 'new'){
+    document.getElementById('newTime').value = timeStr;
+    const btn = document.getElementById('newTimeBtn');
+    btn.textContent = timeStr;
+    btn.classList.remove('placeholder');
+    btn.insertAdjacentHTML('beforeend','<span style="font-size:16px;opacity:0.4"> ⌚</span>');
+  } else {
+    const ef = document.getElementById('ef_time');
+    if(ef) ef.value = timeStr;
+  }
+  closeTimePicker();
 }
 
 // ── INIT ─────────────────────────────────────────────
