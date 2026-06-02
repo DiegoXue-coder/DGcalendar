@@ -365,15 +365,16 @@ body{
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    /* 禁止拖拽/选中 */
+    /* 允许点击和竖向滚动，禁止横向拖拽 */
     touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
   }
-  /* 输入框内允许选中文字 */
-  .panel input, .panel select, .panel textarea {
+  /* 输入框和按钮内恢复正常交互 */
+  .panel input, .panel select, .panel textarea, .panel button {
     user-select: text;
     -webkit-user-select: text;
+    touch-action: manipulation;
   }
   .panel-date{font-size:16px}
 
