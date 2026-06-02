@@ -218,9 +218,9 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f5f3ef;color:#1c1c1e;min-
 .cat-label-text{flex:1;font-size:13px}
 .cat-del{background:none;border:none;font-size:14px;color:#ccc;cursor:pointer;padding:0 2px}
 .cat-del:hover{color:#e04c2f}
-.cat-add-row{display:flex;gap:6px;margin-top:4px}
-.cat-add-row input{flex:1;padding:7px 10px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:12px;outline:none}
-.cat-add-btn{background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;white-space:nowrap}
+.cat-add-row{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.cat-add-row input[type=text]{flex:1;min-width:0;padding:7px 10px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:12px;outline:none}
+.cat-add-btn{background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;white-space:nowrap;flex-shrink:0}
 .cat-add-btn:hover{background:#3a3a3c}
 .cat-name-input{flex:1;border:none;background:transparent;font-family:'Noto Sans SC',sans-serif;font-size:13px;color:#1c1c1e;outline:none;padding:1px 3px;border-radius:4px;min-width:0}
 .cat-name-input:focus{background:#fff;box-shadow:0 0 0 1.5px #5b7fa6}
@@ -331,6 +331,16 @@ body{
     border-radius:16px;
     margin:0;
   }
+
+  /* 类型管理底部添加行：颜色块+输入框+按钮竖排 */
+  .cat-add-row{flex-direction:column;gap:8px}
+  .cat-add-row input[type=color]{width:100%;height:40px;border-radius:8px}
+  .cat-add-row input[type=text]{width:100%;font-size:16px}
+  .cat-add-btn{width:100%;padding:12px;font-size:15px}
+
+  /* 日程面板保存按钮留底部安全区 */
+  .save-btn{padding:14px;font-size:14px;margin-bottom:4px}
+  .add-section{padding-top:10px}
 
   /* 登录框 */
   .auth-box{padding:28px 22px;border-radius:20px;margin:auto;}
