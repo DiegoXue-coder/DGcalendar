@@ -338,7 +338,14 @@ body{
   .auth-box{padding:28px 22px;border-radius:20px;margin:auto;}
   .auth-logo{font-size:20px}
   .auth-sub{font-size:12px}
-  .auth-field input{padding:11px 13px;font-size:14px}
+  /* 16px 防止 iOS 自动缩放 */
+  .auth-field input{padding:11px 13px;font-size:16px}
+  .add-form input,.add-form select{font-size:16px}
+  .ec-edit-form input,.ec-edit-form select{font-size:16px}
+  .cat-add-row input{font-size:16px}
+  .cat-name-input{font-size:16px}
+  .um-field input{font-size:16px}
+  input,select,textarea{font-size:16px!important}
   .auth-btn{padding:12px;font-size:14px}
 
   /* 布局切换 */
