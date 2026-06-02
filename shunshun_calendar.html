@@ -303,11 +303,38 @@ body{
 
   /* 导航按钮行 */
   .topbar-right{flex-wrap:nowrap;gap:4px}
-  .btn{padding:6px 10px;font-size:12px;border-radius:8px;white-space:nowrap;flex-shrink:0}
-  .nav-label{min-width:72px;font-size:12px;text-align:center;flex-shrink:0}
+  .btn{padding:6px 9px;font-size:11px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+  .nav-label{min-width:64px;font-size:11px;text-align:center;flex-shrink:0}
   .sep{display:none}
   #weekSubSep{display:none!important}
-  #layoutSwitch{display:none!important}
+  /* 布局切换：缩小，JS 控制显隐 */
+  #layoutSwitch{flex-shrink:0}
+  .ls-track{width:80px;height:26px;border-radius:13px}
+  .ls-thumb{width:38px;height:20px;top:2px;left:2px;border-radius:10px}
+  .ls-thumb.right{transform:translateX(40px)}
+  .ls-lbl{font-size:10px}
+
+  /* 跳转日期弹窗：手机上改为居中固定弹窗 */
+  .date-picker-popup{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:calc(100vw - 48px);
+    max-width:320px;
+    z-index:800;
+    border-radius:16px;
+    padding:18px 18px 14px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.2);
+  }
+  /* 遮罩背景 */
+  .date-picker-popup.open::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    z-index:-1;
+    border-radius:0;
+  }
 
   /* 图例横滚条 */
   .legend{overflow-x:auto;flex-wrap:nowrap;padding:6px 10px;gap:10px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -514,7 +541,7 @@ body{
       </div>
       <div class="sep"></div>
       <div class="nav-btn-wrap">
-        <button class="btn" onclick="toggleDatePicker(event)">跳转日期</button>
+        <button class="btn" onclick="toggleDatePicker(event)">跳转</button>
         <div class="date-picker-popup" id="datePickerPopup">
           <div class="dp-title">选择日期跳转</div>
           <input type="date" class="dp-input" id="dpInput">
