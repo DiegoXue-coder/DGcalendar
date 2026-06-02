@@ -307,11 +307,11 @@ body{
   .wl-en{font-size:11px}
   .wl-et{font-size:10px;margin-bottom:2px}
 
-  /* 日程面板从底部弹出，底部留出 Home 条 */
-  .overlay{padding-top:0;align-items:flex-end}
+  /* 日程面板：从底部滑出 */
+  #overlay{padding:0;align-items:flex-end}
   .panel{
     border-radius:20px 20px 0 0;
-    max-height:88vh;
+    max-height:calc(var(--vh,1vh)*88);
     width:100%;
     max-width:100%;
     padding:16px 18px;
@@ -319,20 +319,17 @@ body{
   }
   .panel-date{font-size:16px}
 
-  /* 弹窗遮罩覆盖全屏（含安全区） */
-  .overlay{
-    padding:0;
-    /* 确保遮罩从最顶部开始覆盖 */
-    top:0;left:0;right:0;bottom:0;
+  /* 分类/用户管理弹窗：居中显示，留边距 */
+  #catOverlay, #umOverlay{
+    padding: calc(env(safe-area-inset-top) + 16px) 12px 16px;
+    align-items:center;
   }
-
-  /* 分类/用户管理弹窗：垂直居中，留边距，不超出屏幕 */
   .cat-modal, .um-modal{
-    width: calc(100% - 24px);
-    max-width: 100%;
-    max-height: calc(90vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    width:100%;
+    max-width:100%;
+    max-height:calc(var(--vh,1vh)*85);
     border-radius:16px;
-    margin: auto;
+    margin:0;
   }
 
   /* 登录框 */
