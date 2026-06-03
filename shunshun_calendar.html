@@ -204,6 +204,17 @@ body{font-family:'Noto Sans SC',sans-serif;background:#f5f3ef;color:#1c1c1e;min-
 .ef-cancel{background:none;border:0.5px solid #d1d1d6;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:'Noto Sans SC',sans-serif;color:#3a3a3c}
 .ef-cancel:hover{background:#f2f2f7}
 .add-section{border-top:0.5px solid #e5e5ea;padding-top:12px;margin-top:4px}
+/* ── REPEAT ROW ── */
+.repeat-row{display:flex;align-items:center;gap:8px}
+.repeat-end-row{display:flex;align-items:center;gap:8px}
+.repeat-label{font-size:11px;font-weight:500;color:#8e8e93;white-space:nowrap;width:28px;flex-shrink:0}
+.repeat-options{display:flex;gap:5px;flex-wrap:wrap}
+.repeat-btn{padding:5px 11px;border:0.5px solid #d1d1d6;border-radius:20px;font-family:'Noto Sans SC',sans-serif;font-size:12px;cursor:pointer;background:#fff;color:#3a3a3c;transition:all 0.15s;white-space:nowrap}
+.repeat-btn:hover{background:#f2f2f7}
+.repeat-btn.active{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+.repeat-end-input{flex:1;padding:6px 10px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:13px;outline:none}
+/* 循环标记 */
+.repeat-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 5px;border-radius:8px;background:#e8f0ff;color:#3a6bc8;margin-top:2px;font-weight:500}
 .add-label{font-size:11px;font-weight:500;color:#8e8e93;margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase}
 .add-form{display:flex;flex-direction:column;gap:7px}
 .add-form input,.add-form select{padding:7px 10px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:12px;background:#fff;color:#1c1c1e;outline:none}
@@ -428,6 +439,9 @@ body{
   .add-row{grid-template-columns:1fr;gap:8px}
   .add-form input,.add-form select{font-size:16px;width:100%}
 
+  /* 重复选项 */
+  .repeat-btn{font-size:11px;padding:5px 10px}
+  .repeat-end-input{font-size:16px}
   /* 日程面板保存按钮留底部安全区 */
   .save-btn{padding:14px;font-size:14px;margin-bottom:4px}
   .add-section{padding-top:10px}
@@ -516,6 +530,8 @@ body{
         <div class="user-menu" id="userMenu">
           <div class="user-menu-label" id="userMenuLabel"></div>
           <div class="user-menu-item" onclick="openUserManager()">管理账户</div>
+          <div class="user-menu-item" onclick="openSysSettings()">系统设置</div>
+          <div class="user-menu-divider"></div>
           <div class="user-menu-item" onclick="exportData()">导出备份</div>
           <div class="user-menu-item" onclick="document.getElementById('importFile').click()">导入备份</div>
           <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
@@ -580,6 +596,48 @@ body{
   </div>
 </div>
 
+<!-- System Settings overlay -->
+<div class="overlay" id="sysOverlay" onclick="bgClickSys(event)">
+  <div class="um-modal" id="sysModal">
+    <div class="panel-head">
+      <div class="panel-date">系统设置</div>
+      <button class="close-btn" onclick="closeSysSettings()">✕</button>
+    </div>
+    <div style="font-size:12px;color:#8e8e93;margin-bottom:16px">个性化设置与高级选项</div>
+
+    <!-- 学期设置 -->
+    <div class="um-section">
+      <div class="um-section-title">学期配置</div>
+      <div class="um-pw-section">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div class="um-field">
+            <label style="font-size:11px;color:#8e8e93;display:block;margin-bottom:4px">学期开始日期</label>
+            <input type="date" id="sysTermStart">
+          </div>
+          <div class="um-field">
+            <label style="font-size:11px;color:#8e8e93;display:block;margin-bottom:4px">学期结束日期</label>
+            <input type="date" id="sysTermEnd">
+          </div>
+        </div>
+        <div class="um-field">
+          <label style="font-size:11px;color:#8e8e93;display:block;margin-bottom:4px">放假周（第几周，0=无）</label>
+          <input type="number" id="sysVacWeek" min="0" max="20" style="width:100%;padding:8px 10px;border:0.5px solid #d1d1d6;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:13px;outline:none">
+        </div>
+        <button class="um-save-btn" onclick="saveSysSettings()" style="margin-top:6px">保存设置</button>
+        <div class="um-msg" id="sysMsg"></div>
+      </div>
+    </div>
+
+    <!-- 更多设置占位 -->
+    <div class="um-section" style="margin-top:16px">
+      <div class="um-section-title">更多设置</div>
+      <div style="padding:14px;background:#f8f8fa;border-radius:10px;font-size:13px;color:#8e8e93;text-align:center">
+        更多高级选项即将开放
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Time wheel picker -->
 <div class="tw-overlay" id="twOverlay" onclick="bgClickTW(event)">
   <div class="tw-panel">
@@ -625,6 +683,20 @@ body{
         <input type="hidden" id="newTime">
         <select id="newCat"></select>
         <input type="text" id="newNote" placeholder="备注（可选）">
+        <!-- 重复设置 -->
+        <div class="repeat-row">
+          <span class="repeat-label">重复</span>
+          <div class="repeat-options" id="repeatOptions">
+            <button type="button" class="repeat-btn active" data-val="none">不重复</button>
+            <button type="button" class="repeat-btn" data-val="daily">每天</button>
+            <button type="button" class="repeat-btn" data-val="weekly">每周</button>
+            <button type="button" class="repeat-btn" data-val="monthly">每月</button>
+          </div>
+        </div>
+        <div class="repeat-end-row" id="repeatEndRow" style="display:none">
+          <span class="repeat-label">结束</span>
+          <input type="date" id="repeatEndDate" class="repeat-end-input" placeholder="结束日期（可选）">
+        </div>
         <button class="save-btn" onclick="saveNewEvt()">保存</button>
       </div>
     </div>
@@ -756,6 +828,7 @@ function loginAs(user) {
   currentUser = user;
   setSession(user);
   initUserData();
+  loadSysSettings();
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('mainApp').style.display = '';
   updateUserUI();
@@ -1008,7 +1081,7 @@ function dk(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),
 function dayOnly(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
 function inTerm(d){const t=dayOnly(d);return t>=dayOnly(TERM_START)&&t<=dayOnly(TERM_END);}
 function weekNum(d){const s=dayOnly(TERM_START);const t=dayOnly(d);return Math.floor((t-s)/(7*86400000))+1;}
-function isVac(d){return inTerm(d)&&weekNum(d)===VAC_WEEK;}
+function isVac(d){return inTerm(d)&&weekNum(d)===VAC_WEEK_REF;}
 const DOW=['周日','周一','周二','周三','周四','周五','周六'];
 const DOW_S=['日','一','二','三','四','五','六'];
 
@@ -1450,13 +1523,71 @@ function doDelete(ev,d){
   else{s.custom=s.custom.filter(e=>e.id!==(ev._id||ev.id));}
   save();render();renderEvtList(d);
 }
+// 重复按钮交互
+document.addEventListener('click', e=>{
+  if(e.target.classList.contains('repeat-btn')){
+    document.querySelectorAll('.repeat-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    const val = e.target.dataset.val;
+    document.getElementById('repeatEndRow').style.display = val==='none' ? 'none' : 'flex';
+  }
+});
+function getRepeatVal(){ return document.querySelector('.repeat-btn.active')?.dataset.val||'none'; }
+
 function saveNewEvt(){
-  const name=document.getElementById('newName').value.trim();if(!name)return document.getElementById('newName').focus();
-  const s=getStore(openKey);
-  s.custom.push({id:'c'+Date.now(),name,time:document.getElementById('newTime').value.trim(),cat:document.getElementById('newCat').value,note:document.getElementById('newNote').value.trim()});
+  const name=document.getElementById('newName').value.trim();
+  if(!name)return document.getElementById('newName').focus();
+  const time=document.getElementById('newTime').value.trim();
+  const cat=document.getElementById('newCat').value;
+  const note=document.getElementById('newNote').value.trim();
+  const repeat=getRepeatVal();
+  const endDateStr=document.getElementById('repeatEndDate').value;
+
   const _p=openKey.split('-');
-  save();render();renderEvtList(new Date(parseInt(_p[0]),parseInt(_p[1])-1,parseInt(_p[2])));
-  document.getElementById('newName').value='';document.getElementById('newTime').value='';document.getElementById('newNote').value='';
+  const startDate=new Date(parseInt(_p[0]),parseInt(_p[1])-1,parseInt(_p[2]));
+
+  if(repeat==='none'){
+    // 单次任务
+    getStore(openKey).custom.push({id:'c'+Date.now(),name,time,cat,note});
+  } else {
+    // 循环任务：生成每个日期的记录
+    const endDate = endDateStr
+      ? new Date(endDateStr.split('-').map(Number).reduce((acc,v,i)=>i===1?new Date(acc.getFullYear(),v-1,acc.getDate()):acc,new Date(endDateStr)))
+      : new Date(TERM_END); // 默认到学期末
+
+    // 正确解析结束日期
+    const endD = endDateStr ? (()=>{const p=endDateStr.split('-');return new Date(+p[0],+p[1]-1,+p[2]);})() : new Date(TERM_END);
+
+    let cur = new Date(startDate);
+    let count = 0;
+    const maxCount = 366; // 安全上限
+    const repeatId = 'r'+Date.now(); // 同一批循环共享 repeatId
+
+    while(cur <= endD && count < maxCount){
+      const key = dk(cur);
+      const s = getStore(key);
+      s.custom.push({id:'c'+Date.now()+'_'+count, name, time, cat, note, repeatId, repeat});
+      // 推进到下一个日期
+      if(repeat==='daily'){ cur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+1); }
+      else if(repeat==='weekly'){ cur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+7); }
+      else if(repeat==='monthly'){ cur=new Date(cur.getFullYear(),cur.getMonth()+1,cur.getDate()); }
+      count++;
+    }
+  }
+
+  save();render();
+  renderEvtList(startDate);
+  // 重置表单
+  document.getElementById('newName').value='';
+  document.getElementById('newTime').value='';
+  document.getElementById('newNote').value='';
+  const btn=document.getElementById('newTimeBtn');
+  btn.textContent='选择时间'; btn.className='time-display-btn placeholder';
+  // 重置重复选项
+  document.querySelectorAll('.repeat-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.repeat-btn[data-val="none"]').classList.add('active');
+  document.getElementById('repeatEndRow').style.display='none';
+  document.getElementById('repeatEndDate').value='';
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
@@ -1530,6 +1661,56 @@ function addCat(){
   document.getElementById('newCatName').value='';
   renderCatList();renderLegend();populateCatSelects();
 }
+
+// ── SYSTEM SETTINGS ──────────────────────────────────
+function openSysSettings(){
+  closeUserMenu();
+  // 填入当前值
+  document.getElementById('sysTermStart').value = dk(TERM_START);
+  document.getElementById('sysTermEnd').value = dk(TERM_END);
+  document.getElementById('sysVacWeek').value = VAC_WEEK;
+  document.getElementById('sysMsg').textContent = '';
+  document.getElementById('sysOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSysSettings(){
+  document.getElementById('sysOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function bgClickSys(e){ if(e.target===document.getElementById('sysOverlay')) closeSysSettings(); }
+function saveSysSettings(){
+  const startVal = document.getElementById('sysTermStart').value;
+  const endVal   = document.getElementById('sysTermEnd').value;
+  const vacVal   = parseInt(document.getElementById('sysVacWeek').value)||0;
+  const msg = document.getElementById('sysMsg');
+  if(!startVal||!endVal){ msg.className='um-msg err'; msg.textContent='请填写完整日期'; return; }
+  const sp=startVal.split('-'), ep=endVal.split('-');
+  const s=new Date(+sp[0],+sp[1]-1,+sp[2]), e2=new Date(+ep[0],+ep[1]-1,+ep[2]);
+  if(s>=e2){ msg.className='um-msg err'; msg.textContent='结束日期须晚于开始日期'; return; }
+  // 动态更新全局变量
+  TERM_START.setFullYear(s.getFullYear(),s.getMonth(),s.getDate());
+  TERM_END.setFullYear(e2.getFullYear(),e2.getMonth(),e2.getDate());
+  VAC_WEEK_REF = vacVal;
+  // 持久化到 localStorage
+  localStorage.setItem(uKey('sys_term'), JSON.stringify({start:startVal,end:endVal,vacWeek:vacVal}));
+  msg.className='um-msg ok'; msg.textContent='设置已保存，日历已更新';
+  render();
+}
+// 加载系统设置（在 initUserData 后调用）
+function loadSysSettings(){
+  const raw = localStorage.getItem(uKey('sys_term'));
+  if(raw){
+    try{
+      const {start,end,vacWeek} = JSON.parse(raw);
+      const sp=start.split('-'), ep=end.split('-');
+      TERM_START.setFullYear(+sp[0],+sp[1]-1,+sp[2]);
+      TERM_END.setFullYear(+ep[0],+ep[1]-1,+ep[2]);
+      VAC_WEEK_REF = vacWeek||0;
+    }catch{}
+  }
+}
+// VAC_WEEK 改为可变引用
+let VAC_WEEK_REF = VAC_WEEK;
 
 // ── DATE PICKER ──────────────────────────────────────
 function toggleDatePicker(e){
