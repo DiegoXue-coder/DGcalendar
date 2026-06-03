@@ -1200,7 +1200,19 @@ function weekMonday(d){
 }
 
 function setView(v){
+  const prev=viewMode;
   viewMode=v;
+
+  // ── 视图切换时同步导航状态 ──
+  if(v==='week' && prev==='month'){
+    // 月视图 → 周视图：跳到当前显示月份的第一个周一
+    viewWeekStart=weekMonday(new Date(viewYear,viewMonth,1));
+  } else if(v==='month' && prev==='week'){
+    // 周视图 → 月视图：跳到当前周所在的月份
+    viewYear=viewWeekStart.getFullYear();
+    viewMonth=viewWeekStart.getMonth();
+  }
+
   document.getElementById('monthView').style.display=v==='month'?'block':'none';
   document.getElementById('weekView').style.display=v==='week'?'block':'none';
   document.getElementById('btnMonth').className='btn'+(v==='month'?' active':'');
@@ -1228,8 +1240,18 @@ function updateSwitchUI(){
   }
 }
 function changeNav(d){
-  if(viewMode==='month'){viewMonth+=d;if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;}}
-  else{viewWeekStart=new Date(viewWeekStart.getFullYear(),viewWeekStart.getMonth(),viewWeekStart.getDate()+d*7);}
+  if(viewMode==='month'){
+    viewMonth+=d;
+    if(viewMonth>11){viewMonth=0;viewYear++;}
+    if(viewMonth<0){viewMonth=11;viewYear--;}
+    // 同步周视图起始点到当前月份第一周
+    viewWeekStart=weekMonday(new Date(viewYear,viewMonth,1));
+  } else {
+    viewWeekStart=new Date(viewWeekStart.getFullYear(),viewWeekStart.getMonth(),viewWeekStart.getDate()+d*7);
+    // 同步月视图到当前周所在月份
+    viewYear=viewWeekStart.getFullYear();
+    viewMonth=viewWeekStart.getMonth();
+  }
   render();
 }
 function goToday(){
